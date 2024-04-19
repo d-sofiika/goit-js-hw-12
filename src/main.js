@@ -1,5 +1,6 @@
-import { doFetch } from './js/pixabay-api';
+import { doAxios} from './js/pixabay-api';
 import { createMarkup } from './js/render-functions';
+
 
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -8,9 +9,12 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 const form = document.querySelector('.form-search');
+const btnMore = document.querySelector('.more-btn');
 const placeImg = document.querySelector('.card-container');
 const loader = document.querySelector('.loader');
 loader.style.display = "none";
+btnMore.hidden = "true";
+
 
 const book = new SimpleLightbox('.card-item a', {
   captionsData: 'alt',
@@ -19,6 +23,10 @@ const book = new SimpleLightbox('.card-item a', {
 });
 
 form.addEventListener('submit', handleSubmit);
+btnMore.addEventListener('click', searchMore);
+
+let page = 1;
+let limite;
 
 async function handleSubmit(event) {
   event.preventDefault();
@@ -26,8 +34,7 @@ async function handleSubmit(event) {
   loader.style.display = "block";
   
   const nameImg = event.currentTarget.elements.text.value;
-  setTimeout(() => {
-	doFetch(nameImg, loader, placeImg)
+	await doAxios(nameImg, loader, page, placeImg)
     .then(data => {
       if (nameImg === '' || data.hits.length === 0) {
         iziToast.show({
@@ -40,11 +47,28 @@ async function handleSubmit(event) {
           position: 'topRight'
           
         });
-          
+        return;
       } else {
         placeImg.insertAdjacentHTML('beforeend', createMarkup(data));
+        if (placeImg.children.length) {
+          btnMore.hidden = false;
+        }
         book.refresh();
-         event.target.reset();
+        event.target.reset();
+        page += 1;
+        limite = Math.floor(data.totalHits / 15);
+        if (page === limite) {
+          iziToast.show({
+            titleColor: 'white',
+            message: `We're sorry, but you've reached the end of search results.!`,
+            messageColor: 'white',
+            color: 'blue',
+            position: 'topCenter',
+            timeout: '5000',
+          });
+          btnMore.hidden = true;
+
+        }
       }
     })
     .catch(error => {
@@ -61,9 +85,9 @@ async function handleSubmit(event) {
       });
     })
     .finally(() => {
-      
       loader.style.display = "none";
     });
-  }, 1000);
+}
+async function searchMore(event) {
   
 }
