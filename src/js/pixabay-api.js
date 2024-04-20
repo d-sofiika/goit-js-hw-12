@@ -1,17 +1,15 @@
 
-import axios from "axios";
-import iziToast from "izitoast";
-import "izitoast/dist/css/iziToast.min.css";
+import axios from 'axios';
 
 
-export async function doAxios(nameImg, page) {
+export async function doFetch(nameImg, page) {
     const BASE_URL = "https://pixabay.com/api/";
     const API_KEY = "43384169-ca1a4d081c57b6f9f4fa25679";
 
 
     
     const response = await axios({
-        BASE_URL, params: {
+        baseURL: BASE_URL, params: {
             key: API_KEY,
             q: nameImg,
             image_type: 'photo',
@@ -22,6 +20,6 @@ export async function doAxios(nameImg, page) {
     
         },
     });
-    return response;
+    return response.data;
         
 }

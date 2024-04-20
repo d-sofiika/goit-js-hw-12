@@ -1,7 +1,7 @@
-import { doAxios} from './js/pixabay-api';
+import { doFetch} from './js/pixabay-api';
 import { createMarkup } from './js/render-functions';
 
-
+import axios from "axios";
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
@@ -13,7 +13,8 @@ const btnMore = document.querySelector('.more-btn');
 const placeImg = document.querySelector('.card-container');
 const loader = document.querySelector('.loader');
 loader.style.display = "none";
-btnMore.hidden = "true";
+btnMore.hidden = true;
+
 
 
 const book = new SimpleLightbox('.card-item a', {
@@ -32,9 +33,10 @@ async function handleSubmit(event) {
   event.preventDefault();
   placeImg.innerHTML = '';
   loader.style.display = "block";
-  
+  btnMore.hidden = "true";
+  page = 1;
   const nameImg = event.currentTarget.elements.text.value;
-	doAxios(nameImg, loader, page, placeImg)
+	doFetch(nameImg, page)
     .then(data => {
       if (nameImg === '' || data.hits.length === 0) {
         iziToast.show({
@@ -50,6 +52,9 @@ async function handleSubmit(event) {
         
       } else {
         placeImg.insertAdjacentHTML('beforeend', createMarkup(data));
+        if (placeImg.hasChildNodes() ) {
+          btnMore.hidden = false;
+        } 
         book.refresh();
         event.target.reset();
       }
