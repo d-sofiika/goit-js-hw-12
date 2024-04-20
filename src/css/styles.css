@@ -181,5 +181,8 @@ border: 1px solid #000;
   
 .more-btn:hover {
     background-color: #6c8cff;
-    ;
+    
   }
+.more-btn:disabled{
+background-color: red;
+}

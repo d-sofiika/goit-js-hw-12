@@ -14,7 +14,8 @@ const placeImg = document.querySelector('.card-container');
 const loader = document.querySelector('.loader');
 loader.style.display = "none";
 btnMore.hidden = true;
-
+btnMore.disabled = true;
+  
 
 
 const book = new SimpleLightbox('.card-item a', {
@@ -28,16 +29,21 @@ btnMore.addEventListener('click', searchMore);
 
 let page = 1;
 let limite;
+btnMore.disabled = true;
 
 async function handleSubmit(event) {
   event.preventDefault();
   placeImg.innerHTML = '';
   loader.style.display = "block";
-  btnMore.hidden = "true";
+  btnMore.hidden = true;
+  
   page = 1;
+  
   const nameImg = event.currentTarget.elements.text.value;
 	doFetch(nameImg, page)
     .then(data => {
+      limite = Math.floor(data.totalHits / 15);
+      console.log(limite);
       if (nameImg === '' || data.hits.length === 0) {
         iziToast.show({
           title: 'Ops.',
@@ -51,12 +57,17 @@ async function handleSubmit(event) {
         });
         
       } else {
+        
         placeImg.insertAdjacentHTML('beforeend', createMarkup(data));
-        if (placeImg.hasChildNodes() ) {
+        btnMore.disabled = false;
+  
+        if (placeImg.hasChildNodes() && page < limite) {
           btnMore.hidden = false;
         } 
+        
         book.refresh();
         event.target.reset();
+        
       }
     })
     .catch(error => {
@@ -77,6 +88,18 @@ async function handleSubmit(event) {
       loader.style.display = "none";
     });
 }
-async function searchMore(event) {
+async function searchMore() {
+  btnMore.disabled = true;
+  page += 1;
   
+  try {
+    const value = await doFetch(page);
+    placeImg.insertAdjacentHTML('beforeend', createMarkup(value));
+    btnMore.disabled = false;
+    if (page >= limite) {
+     btnMore.hidden = true;
+    }
+  } catch (error) {
+    alert("Error")
+  }
 }
