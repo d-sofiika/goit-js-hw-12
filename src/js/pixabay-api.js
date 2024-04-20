@@ -22,6 +22,6 @@ export async function doAxios(nameImg, page) {
     
         },
     });
-    return response.data;
+    return response;
         
 }

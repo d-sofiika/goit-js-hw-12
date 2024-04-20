@@ -34,7 +34,7 @@ async function handleSubmit(event) {
   loader.style.display = "block";
   
   const nameImg = event.currentTarget.elements.text.value;
-	await doAxios(nameImg, loader, page, placeImg)
+	doAxios(nameImg, loader, page, placeImg)
     .then(data => {
       if (nameImg === '' || data.hits.length === 0) {
         iziToast.show({
@@ -47,36 +47,20 @@ async function handleSubmit(event) {
           position: 'topRight'
           
         });
-        return;
+        
       } else {
         placeImg.insertAdjacentHTML('beforeend', createMarkup(data));
-        if (placeImg.children.length) {
-          btnMore.hidden = false;
-        }
         book.refresh();
         event.target.reset();
-        page += 1;
-        limite = Math.floor(data.totalHits / 15);
-        if (page === limite) {
-          iziToast.show({
-            titleColor: 'white',
-            message: `We're sorry, but you've reached the end of search results.!`,
-            messageColor: 'white',
-            color: 'blue',
-            position: 'topCenter',
-            timeout: '5000',
-          });
-          btnMore.hidden = true;
-
-        }
       }
     })
     .catch(error => {
+      console.log(error);
       iziToast.error({
         title: 'Error',
         titleColor: 'white',
         message:
-          'Sorry, there are no images matching your search query. Please, try again!',
+          'Oops!',
         messageColor: 'white',
         balloon: true,
         position: 'topRight',
